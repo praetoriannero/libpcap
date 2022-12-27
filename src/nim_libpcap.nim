@@ -56,22 +56,22 @@ const
     RpcapHostlistSize* = 1024
 
 type
-    Pcap = pointer
+    Pcap* = pointer
 
-    PcapDumper = pointer
+    PcapDumper* = pointer
 
-    SockAddr = object
+    SockAddr* = object
         saFamily: uint16
         saData: array[14, byte]
 
-    PcapAddr = object
+    PcapAddr* = object
         next: ptr PcapAddr
         address: ptr SockAddr
         netmask: ptr SockAddr
         broadaddr: ptr SockAddr
         dstaddr: ptr SockAddr
 
-    PcapIf = ptr object
+    PcapIf* = ptr object
         next: PcapIf
         name: cstring
         description: cstring
