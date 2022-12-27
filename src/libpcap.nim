@@ -61,40 +61,40 @@ type
     PcapDumper* = pointer
 
     SockAddr* = object
-        saFamily: uint16
-        saData: array[14, byte]
+        saFamily*: uint16
+        saData*: array[14, byte]
 
     PcapAddr* = object
-        next: ptr PcapAddr
-        address: ptr SockAddr
-        netmask: ptr SockAddr
-        broadaddr: ptr SockAddr
-        dstaddr: ptr SockAddr
+        next*: ptr PcapAddr
+        address*: ptr SockAddr
+        netmask*: ptr SockAddr
+        broadaddr*: ptr SockAddr
+        dstaddr*: ptr SockAddr
 
     PcapIf* = ptr object
-        next: PcapIf
-        name: cstring
-        description: cstring
-        addresses: ptr PcapAddr
-        flags: cuint
+        next*: PcapIf
+        name*: cstring
+        description*: cstring
+        addresses*: ptr PcapAddr
+        flags*: cuint
 
     TimeVal* = object
-        tvSec: int32
-        tvUsec: int32
+        tvSec*: int32
+        tvUsec*: int32
 
     PcapPacketHeader* = object
-        ts: TimeVal
-        capLen: cuint
-        len: cuint
+        ts*: TimeVal
+        capLen*: cuint
+        len*: cuint
 
     PcapFileHeader* = object
-        magic: cuint
-        versionMajor: cushort
-        versionMinor: cushort
-        thisZone: cint
-        sigFigs: cuint
-        snapLen: cuint
-        linkType: cuint
+        magic*: cuint
+        versionMajor*: cushort
+        versionMinor*: cushort
+        thisZone*: cint
+        sigFigs*: cuint
+        snapLen*: cuint
+        linkType*: cuint
 
     PcapDirection* = enum
         PCAP_D_INOUT = 0
