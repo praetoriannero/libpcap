@@ -8,6 +8,9 @@ import std/net
 when defined(windows):
     echo("Windows OS detected")
     const libName* = "wpcap.dll"
+elif defined(linux):
+    echo("Linux OS detected")
+    const libName* = "libpcap.so.1"
 else:
     echo("Unknown OS detected")
 
