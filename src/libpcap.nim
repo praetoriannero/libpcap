@@ -6,13 +6,12 @@ import std/net
 # https://livebook.manning.com/book/nim-in-action/chapter-8/79
 
 when defined(windows):
-    echo("Windows OS detected")
     const libName* = "wpcap.dll"
 elif defined(linux):
-    echo("Linux OS detected")
-    const libName* = "libpcap.so.1"
+    const libName* = "libpcap.so"
 else:
-    echo("Unknown OS detected")
+    echo("ERROR: unknown OS detected")
+    exit(1)
 
 const
     PcapBuffSize* = 65535
@@ -74,8 +73,8 @@ type
         broadaddr*: ptr SockAddr
         dstaddr*: ptr SockAddr
 
-    PcapIf* = ptr object
-        next*: PcapIf
+    PcapIf* = object
+        next*: ptr PcapIf
         name*: cstring
         description*: cstring
         addresses*: ptr PcapAddr
@@ -100,9 +99,9 @@ type
         linkType*: cuint
 
     PcapDirection* = enum
-        PCAP_D_INOUT = 0
-        PCAP_D_IN
-        PCAP_D_OUT
+        PcapDInOut = 0
+        PcapDIn
+        PcapDOut
 
     BpfInsn* = object
         code*: cushort
@@ -123,7 +122,8 @@ type
         sampMethod*: cint
         sampValue*: cint
 
-    PcapHandler* = proc(user: ptr char, header: PcapPacketHeader, bytes: ptr byte)
+    PcapHandler* = proc(user: ptr char, header: PcapPacketHeader,
+            bytes: ptr byte)
 
 when defined(Windows):
     type PcapStat = object
@@ -147,7 +147,8 @@ proc pcapInit*(opts: cuint, errorStr: cstring): cint
 proc pcapLookupDev*(buffer: var cstring): cstring
     {.importc: "pcap_lookupdev".}
 
-proc pcapLookupNet*(device: cstring, net: var cuint, mask: var cuint, errorBuf: var cstring): cint
+proc pcapLookupNet*(device: cstring, net: var cuint, mask: var cuint,
+        errorBuf: var cstring): cint
     {.importc: "pcap_lookupnet".}
 
 proc pcapCreate*(source: cstring, errorBuf: var cstring): Pcap
@@ -201,20 +202,23 @@ proc pcapTstampTypeValToName*(typeVal: cint): cstring
 proc pcapTstampTypeValToDescription*(typeVal: cint): cstring
     {.importc: "pcap_tstamp_type_val_to_description".}
 
-when defined(Linux):
+when defined(linux):
     proc pcapSetProtocolLinux*(handle: Pcap, protocol: cint): cint
         {.importc: "pcap_set_protocol_linux".}
 
-proc pcapOpenLive*(device: cstring, snapLen: cint, promisc: cint, toMs: cint, errorBuf: var cstring): Pcap
+proc pcapOpenLive*(device: cstring, snapLen: cint, promisc: cint, toMs: cint,
+        errorBuf: var cstring): Pcap
     {.importc: "pcap_open_live".}
 
 proc pcapOpenDead*(linkType: cint, snapLen: cint): Pcap
     {.importc: "pcap_open_dead".}
 
-proc pcapOpenDeadWithTstampPrecision*(linkType: cint, snapLen: cint, precision: cuint): Pcap
+proc pcapOpenDeadWithTstampPrecision*(linkType: cint, snapLen: cint,
+        precision: cuint): Pcap
     {.importc: "pcap_open_dead_with_tstamp_precision".}
 
-proc pcapOpenOfflineWithTstampPrecision*(fname: cstring, errorBuf: var cstring): Pcap
+proc pcapOpenOfflineWithTstampPrecision*(fname: cstring,
+        errorBuf: var cstring): Pcap
     {.importc: "pcap_open_offline_with_tstamp_precision".}
 
 proc pcapOpenOffline*(fname: cstring, errorBuf: var cstring): Pcap
@@ -223,7 +227,8 @@ proc pcapOpenOffline*(fname: cstring, errorBuf: var cstring): Pcap
 proc pcapFopenOffline*(filePointer: File, errorBuf: var cstring): Pcap
     {.importc: "pcap_fopen_offline".}
 
-proc pcapFopenOfflineWithTstampPrecision*(filePointer: File, precision: cuint, errorBuf: var cstring): Pcap
+proc pcapFopenOfflineWithTstampPrecision*(filePointer: File, precision: cuint,
+        errorBuf: var cstring): Pcap
     {.importc: "pcap_fopen_offline_with_timestamp_precision".}
 
 proc pcapClose*(handle: Pcap)
@@ -232,13 +237,15 @@ proc pcapClose*(handle: Pcap)
 proc pcapLoop*(handle: Pcap, count: cint, callback: PcapHandler, user: ptr char)
     {.importc: "pcap_loop".}
 
-proc pcapDispatch*(handle: Pcap, count: cint, callback: PcapHandler, user: ptr char)
+proc pcapDispatch*(handle: Pcap, count: cint, callback: PcapHandler,
+        user: ptr char)
     {.importc: "pcap_dispatch".}
 
 proc pcapNext*(handle: Pcap, packetHeader: ptr PcapPacketHeader): ptr byte
     {.importc: "pcap_next".}
 
-proc pcapNextEx*(handle: Pcap, header: var PcapPacketHeader, packetBuff: ptr byte): cint
+proc pcapNextEx*(handle: Pcap, header: var PcapPacketHeader,
+        packetBuff: ptr byte): cint
     {.importc: "pcap_next_ex".}
 
 proc pcapBreakLoop*(handle: Pcap)
@@ -277,16 +284,19 @@ proc pcapGetErr*(handle: Pcap): cstring
 proc pcapPerror*(handle: Pcap, prefix: cstring)
     {.importc: "pcap_perror".}
 
-proc pcapCompile*(handle: Pcap, bpfProgram: BpfProgram, str: cstring, optimize: cint, netmask: uint32): cint
+proc pcapCompile*(handle: Pcap, bpfProgram: BpfProgram, str: cstring,
+        optimize: cint, netmask: uint32): cint
     {.importc: "pcap_compile".}
 
-proc pcapCompileNoPcap*(snaplen: cint, linktype: cint, bpfProgram: BpfProgram, str: cstring, optimize, cint, netmask: uint32): cint
+proc pcapCompileNoPcap*(snaplen: cint, linktype: cint, bpfProgram: BpfProgram,
+        str: cstring, optimize, cint, netmask: uint32): cint
     {.importc: "pcap_compile_nopcap".}
 
 proc pcapFreeCode*(bpfProgram: BpfProgram)
     {.importc: "pcap_freecode".}
 
-proc pcapOfflineFilter*(bpfProgram: BpfProgram, packetHeader: PcapPacketHeader, pkt: ptr uint8): cint
+proc pcapOfflineFilter*(bpfProgram: BpfProgram, packetHeader: PcapPacketHeader,
+        pkt: ptr uint8): cint
     {.importc: "pcap_offline_filter".}
 
 proc pcapDatalink*(handle: Pcap): cint
@@ -364,13 +374,14 @@ proc pcapDumpFlush*(pd: PcapDumper): cint
 proc pcapDumpClose*(pd: PcapDumper)
     {.importc: "pcap_dump_close".}
 
-proc pcapDump*(dumpFile: PcapDumper, packetHeader: PcapPacketHeader, pkt: ptr uint8)
+proc pcapDump*(dumpFile: PcapDumper, packetHeader: PcapPacketHeader,
+        pkt: ptr uint8)
     {.importc: "pcap_dump".}
 
-proc pcapFindAllDevs*(iface: var PcapIf, errorStr: cstring): cint
+proc pcapFindAllDevs*(iface: var ptr PcapIf, errorStr: cstring): cint
     {.importc: "pcap_findalldevs".}
 
-proc pcapFreeAllDevs*(iface: var PcapIf)
+proc pcapFreeAllDevs*(iface: var ptr PcapIf)
     {.importc: "pcap_freealldevs".}
 
 proc pcapLibVersion*(): cstring
@@ -397,10 +408,12 @@ when defined(Windows):
     proc pcapGetEvent*(handle: Pcap): pointer
         {.importc: "pcap_getevent".}
 
-    proc pcapOidGetRequest*(handle: Pcap, val: uint32, voidPtr: pointer, sizePtr: openarray[byte]): cint
+    proc pcapOidGetRequest*(handle: Pcap, val: uint32, voidPtr: pointer,
+            sizePtr: openarray[byte]): cint
         {.importc: "pcap_oid_get_request".}
 
-    proc pcapOidSetRequest*(handle: Pcap, val: uint32, voidPtr: pointer, sizePtr: openarray[byte]): cint
+    proc pcapOidSetRequest*(handle: Pcap, val: uint32, voidPtr: pointer,
+            sizePtr: openarray[byte]): cint
         {.importc: "pcap_oid_set_request".}
 
     proc pcapSendQueueAlloc*(memSize: cuint): PcapSendQueue
@@ -409,7 +422,8 @@ when defined(Windows):
     proc pcapSendQueueDestroy*(queue: PcapSendQueue)
         {.importc: "pcap_sendqueue_destroy".}
 
-    proc pcapSendQueueTransmit*(handle: Pcap, queue: PcapSendQueue, sync: cint): cuint
+    proc pcapSendQueueTransmit*(handle: Pcap, queue: PcapSendQueue,
+            sync: cint): cuint
         {.importc: "pcap_sendqueue_transmit".}
 
     proc pcapStatsEx*(handle: Pcap, pcapStatSize: cint): PcapStat
@@ -418,18 +432,19 @@ when defined(Windows):
     proc pcapSetUserBuffer*(handle: Pcap, size: cint): cint
         {.importc: "pcap_setuserbuffer".}
 
-    proc pcapLiveDump*(handle: Pcap, fileName: cstring, maxSize: cint, maxPacks: cint): cint
+    proc pcapLiveDump*(handle: Pcap, fileName: cstring, maxSize: cint,
+            maxPacks: cint): cint
         {.importc: "pcap_live_dump".}
 
     proc pcapLiveDumpEnded*(handle: Pcap, sync: cint): cint
         {.importc: "pcap_live_dump_ended".}
-    
+
     proc pcapStartOem*(errorBuf: var cstring, flags: cint): cint
         {.importc: "pcap_start_oem".}
 
     proc pcapGetAircapHandle*(handle: Pcap): PAirPcapHandle
         {.importc: "pcap_get_airpcap".}
-  
+
 when defined(Linux):
     proc pcapGetSelectableFd*(handle: Pcap): cint
         {.importc: "pcap_get_selectable_fd".}
@@ -437,28 +452,37 @@ when defined(Linux):
     proc pcapGetRequiredSelectTimeout*(handle: Pcap): TimeVal
         {.importc: "pcap_get_required_select_timeout".}
 
-proc pcapOpen*(source: cstring, snapLen: cint, flags: cint, readTimeout: cint, auth: PcapRmtAuth, errorBuf: var cstring): Pcap
+proc pcapOpen*(source: cstring, snapLen: cint, flags: cint, readTimeout: cint,
+        auth: PcapRmtAuth, errorBuf: var cstring): Pcap
     {.importc: "pcap_open".}
 
-proc pcapCreateSrcStr*(source: cstring, srcType: cint, host: cstring, port: cstring, name: cstring, errorBuf: var cstring): cint
+proc pcapCreateSrcStr*(source: cstring, srcType: cint, host: cstring,
+        port: cstring, name: cstring, errorBuf: var cstring): cint
     {.importc: "pcap_createsrcstr".}
 
-proc pcapParseSrcStr*(source: cstring, srcType: cint, host: var cstring, port: cstring, name: cstring, errorBuf: var cstring): cint
+proc pcapParseSrcStr*(source: cstring, srcType: cint, host: var cstring,
+        port: cstring, name: cstring, errorBuf: var cstring): cint
     {.importc: "pcap_parsesrcstr".}
 
-proc pcapFindAllDevsEx*(source: cstring, auth: PcapRmtAuth, alldevs: var PcapIf, errorBuf: var cstring): cint
+proc pcapFindAllDevsEx*(source: cstring, auth: PcapRmtAuth, alldevs: var ptr PcapIf,
+        errorBuf: var cstring): cint
     {.importc: "pcap_findalldevs_ex".}
 
 proc pcapSetSampling*(handle: Pcap): PcapSamp
     {.importc: "pcap_setsampling".}
 
-proc pcapRemoteActAccept*(address: cstring, port: cstring, hostlist: cstring, connectingHost: var cstring, auth: var PcapRmtAuth, errorBuf: var cstring): Socket
+proc pcapRemoteActAccept*(address: cstring, port: cstring, hostlist: cstring,
+        connectingHost: var cstring, auth: var PcapRmtAuth,
+        errorBuf: var cstring): Socket
     {.importc: "pcap_remoteact_accept".}
 
-proc pcapRemoteActAcceptEx*(address: cstring, port: cstring, hostlist: cstring, connectingHost: var cstring, auth: var PcapRmtAuth, usesSSL: cint, errorBuf: var cstring): Socket
+proc pcapRemoteActAcceptEx*(address: cstring, port: cstring, hostlist: cstring,
+        connectingHost: var cstring, auth: var PcapRmtAuth, usesSSL: cint,
+        errorBuf: var cstring): Socket
     {.importc: "pcap_remoteact_accept".}
 
-proc pcapRemoteActList*(hostList: var cstring, sep: char, size: cint, errorBuf: var cstring): cint
+proc pcapRemoteActList*(hostList: var cstring, sep: char, size: cint,
+        errorBuf: var cstring): cint
     {.importc: "pcap_remoteact_list".}
 
 proc pcapRemoteActClose*(host: cstring, errorBuf: var cstring): cint
