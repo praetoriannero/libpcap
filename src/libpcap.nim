@@ -81,8 +81,8 @@ type
         flags*: cuint
 
     TimeVal* = object
-        tvSec*: int32
-        tvUsec*: int32
+        tvSec*: int64
+        tvUsec*: int64
 
     PcapPacketHeader* = object
         ts*: TimeVal
@@ -207,7 +207,7 @@ when defined(linux):
         {.importc: "pcap_set_protocol_linux".}
 
 proc pcapOpenLive*(device: cstring, snapLen: cint, promisc: cint, toMs: cint,
-        errorBuf: var cstring): Pcap
+        errorBuf: ptr char): Pcap
     {.importc: "pcap_open_live".}
 
 proc pcapOpenDead*(linkType: cint, snapLen: cint): Pcap
