@@ -3,9 +3,10 @@ import ../src/libpcap
 
 proc main() =
     var iface: ptr PcapIf
-    var errStr: cstring
+    var errBuf: array[PcapErrbufSize, char]
 
-    let _ = pcapFindAllDevs(iface, errStr)
+    let error = pcapFindAllDevs(iface, addr(errBuf[0]))
+    echo("Error: ", $cast[cstring](addr(errBuf[0])))
 
     var device = iface
 

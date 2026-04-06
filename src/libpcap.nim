@@ -379,7 +379,7 @@ proc pcapDump*(dumpFile: PcapDumper, packetHeader: PcapPacketHeader,
         pkt: ptr uint8)
     {.importc: "pcap_dump".}
 
-proc pcapFindAllDevs*(iface: ptr PcapIf, errorStr: cstring): cint
+proc pcapFindAllDevs*(iface: ptr PcapIf, errorBuf: ptr char): cint
     {.importc: "pcap_findalldevs".}
 
 proc pcapFreeAllDevs*(iface: var ptr PcapIf)
