@@ -24,24 +24,28 @@ proc copyBytes(packet: ptr byte, pkt_header: PcapPacketHeader): seq[byte] =
 proc main() =
     const snapLen = 2048
     const promisc = 1
-    const timeoutms = 1000
+    const timeoutms = 10_000
 
     var errBuf: array[PcapErrbufSize, char]
-
-    let handle = pcapOpenLive(nil, snapLen, promisc, timeoutms, addr(errBuf[0]))
+    var packetBuf: array[snapLen, byte]
+    let deviceName = "\\Device\\NPF_{F33A56C0-C405-447D-8062-88DB028EA630}"
+    let handle = pcapOpenLive(deviceName.cstring, snapLen, promisc, timeoutms, addr(errBuf[0]))
 
     if handle == nil:
         echo("Error opening device: ", $cast[cstring](addr(errBuf[0])))
         quit(1)
 
-    var pcapHeader: PcapPacketHeader
-    let packet: ptr byte = pcapNext(handle, addr(pcapHeader))
+    var pcapHeader: PcapPacketHeader = PcapPacketHeader()
+    var headerRef = addr(pcapHeader)
+    let code = pcapNextEx(handle, addr(headerRef), addr(packetBuf[0]))
 
     echo(pcapHeader)
+    echo(code)
+    echo(packetBuf)
 
-    var bytes: seq[byte] = copyBytes(packet, pcapHeader)
+    # var bytes: seq[byte] = copyBytes(packet, pcapHeader)
 
-    echo($bytes)
+    # echo($bytes)
 
     pcapClose(handle)
 
