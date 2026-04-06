@@ -1,6 +1,7 @@
 import system
 import ../src/libpcap
 
+
 proc `$`(bytes: seq[byte]): string =
     ## Create an ASCII string of the raw bytes
     result = newString(bytes.len())

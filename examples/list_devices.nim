@@ -1,14 +1,17 @@
 import system
 import ../src/libpcap
 
+
 proc main() =
-    var iface: ptr PcapIf
+    var iface: PcapIf
     var errBuf: array[PcapErrbufSize, char]
 
-    let error = pcapFindAllDevs(iface, addr(errBuf[0]))
-    echo("Error: ", $cast[cstring](addr(errBuf[0])))
+    let error = pcapFindAllDevs(addr(iface), addr(errBuf[0]))
 
-    var device = iface
+    if error != 0:
+        echo("Error: ", $cast[cstring](addr(errBuf[0])))
+
+    var device = addr(iface)
 
     while device != nil:
         echo("Device: ", device.name)
