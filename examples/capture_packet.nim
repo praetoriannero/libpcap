@@ -1,5 +1,4 @@
 import system
-import std/strformat
 import ../src/libpcap
 
 const snapLen = 2048
@@ -7,36 +6,24 @@ const promisc = 1
 const timeoutms = 1000
 var errBuf: cstring
 
-
-proc `$`(iface: PcapIf): string =
-    fmt("PcapIf(name: {iface.name}, addr: {iface.addresses[]})")
-
-# Open device (nil = default device)
-let handle = pcapOpenLive("eth0", snapLen, promisc, timeoutms, errBuf)
+let handle = pcapOpenLive(nil, snapLen, promisc, timeoutms, errBuf)
 
 if handle == nil:
-    echo "Error opening device: ", $(cast[cstring](addr errBuf[0]))
+    echo($errBuf)
+    echo("Error opening device: ", $errBuf)
     quit(1)
 
-var header: PcapPacketHeader = PcapPacketHeader()
-var dataBuffer: array[snapLen, byte]
-var iface: PcapIf
-var errStr: cstring
+var pcapHeader: PcapPacketHeader
 
-var devices = pcapFindAllDevs(addr(iface), errStr)
+let packet: ptr byte = pcapNext(handle, addr(pcapHeader))
 
-if iface != nil:
-    echo(iface.name)
-    while iface.next != nil:
-        iface = iface.next
-        echo(iface.name)
+echo(pcapHeader)
 
-var pcapHeader: PcapPacketHeader = PcapPacketHeader()
+var bytes: seq[byte] = newSeq[byte](pcapHeader.capLen)
 
-let packet = pcapNext(handle, addr(pcapHeader))
-echo(typeof(packet))
-# for idx in 0..pcapHeader.capLen:
-#     echo(packet[idx])
+# if packet != nil and pcapHeader.capLen > 0:
+#     copyMem(addr bytes[0], packet, pcapHeader.capLen)
 
+# echo(bytes)
 
 pcapClose(handle)
