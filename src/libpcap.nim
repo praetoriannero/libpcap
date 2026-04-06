@@ -245,7 +245,7 @@ proc pcapDispatch*(handle: Pcap, count: cint, callback: PcapHandler,
 proc pcapNext*(handle: Pcap, header: ptr PcapPacketHeader): ptr byte
     {.importc: "pcap_next".}
 
-proc pcapNextEx*(handle: Pcap, header: ptr ptr PcapPacketHeader,
+proc pcapNextEx*(handle: Pcap, header: ptr PcapPacketHeader,
         packetBuff: ptr byte): cint
     {.importc: "pcap_next_ex".}
 
