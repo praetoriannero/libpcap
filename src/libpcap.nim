@@ -81,10 +81,18 @@ type
         addresses*: ptr PcapAddr
         flags*: cuint
 
-    TimeVal* = object
-        tvSec*: int64
-        tvUsec*: int64
+when defined(windows):
+    type
+        TimeVal* = object
+            tvSec*: int32
+            tvUsec*: int32
+else:
+    type
+        TimeVal* = object
+            tvSec*: int64
+            tvUsec*: int64
 
+type
     PcapPacketHeader* {.packed.} = object
         ts*: TimeVal
         capLen*: cuint
