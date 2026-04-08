@@ -7,146 +7,146 @@ import std/net
 # https://github.com/the-tcpdump-group/libpcap/tree/master
 
 when defined(windows):
-    const libName* = "wpcap.dll"
+  const libName* = "wpcap.dll"
 elif defined(linux):
-    const libName* = "libpcap.so"
+  const libName* = "libpcap.so"
 else:
-    echo("ERROR: unknown OS detected")
-    exit(1)
+  echo("ERROR: unknown OS detected")
+  exit(1)
 
 const
-    PcapBuffSize* = 65535
-    PcapVersionMajor* = 2
-    PcapVersionMinor* = 4
-    PcapErrbufSize* = 256
-    PcapError*: cint = -1
-    PcapErrorBreak*: cint = -2
-    PcapErrorNotActivated*: cint = -3
-    PcapErrorActivated*: cint = -4
-    PcapErrorNoSuchDevice*: cint = -5
-    PcapErrorRfmonNotsup*: cint = -6
-    PcapErrorNotRfmon*: cint = -7
-    PcapErrorPermDenied*: cint = -8
-    PcapErrorIfaceNotUp*: cint = -9
-    PcapErrorCantsetTstampType*: cint = -10
-    PcapErrorPromiscPermDenied*: cint = -11
-    PcapErrorTstampPrecisionNotsup*: cint = -12
-    PcapWarning*: cint = 1
-    PcapWarningPromiscNotsup*: cint = 2
-    PcapWarningTstampTypeNotsup*: cint = 3
-    PcapNetmaskUnknown*: int64 = 0xffffffff
-    PcapCharEncLocal*: cuint = 0x00000000
-    PcapCharEncUtf8*: cuint = 0x00000001
-    PcapBufSize* = 1024
-    PcapSrcFile* = 2
-    PcapSrcIfLocal* = 3
-    PcapSrcIfRemote* = 4
-    PcapSrcFileString*: cstring = "file://"
-    PcapSrcIfString*: cstring = "rpcap://"
-    PcapOpenFlagPromiscous* = 0x00000001
-    PcapOpenFlagDataTxUdp* = 0x00000002
-    PcapOpenFlagNoCaptureRpcap* = 0x00000004
-    PcapOpenFlagNoCaptureLocal* = 0x00000008
-    PcapOpenFlagMaxResponsiveness* = 0x00000010
-    RpcapRmtAuthNull* = 0
-    RpcapRmtAuthPwd* = 1
-    ModeCapt* = 0
-    ModeStat* = 1
-    ModeMon* = 2
-    PcapSampNoSamp* = 0
-    PcapSamp1EveryN* = 1
-    PcapSampFirstAfterNMs* = 2
-    RpcapHostlistSize* = 1024
+  PcapBuffSize* = 65535
+  PcapVersionMajor* = 2
+  PcapVersionMinor* = 4
+  PcapErrbufSize* = 256
+  PcapError*: cint = -1
+  PcapErrorBreak*: cint = -2
+  PcapErrorNotActivated*: cint = -3
+  PcapErrorActivated*: cint = -4
+  PcapErrorNoSuchDevice*: cint = -5
+  PcapErrorRfmonNotsup*: cint = -6
+  PcapErrorNotRfmon*: cint = -7
+  PcapErrorPermDenied*: cint = -8
+  PcapErrorIfaceNotUp*: cint = -9
+  PcapErrorCantsetTstampType*: cint = -10
+  PcapErrorPromiscPermDenied*: cint = -11
+  PcapErrorTstampPrecisionNotsup*: cint = -12
+  PcapWarning*: cint = 1
+  PcapWarningPromiscNotsup*: cint = 2
+  PcapWarningTstampTypeNotsup*: cint = 3
+  PcapNetmaskUnknown*: int64 = 0xffffffff
+  PcapCharEncLocal*: cuint = 0x00000000
+  PcapCharEncUtf8*: cuint = 0x00000001
+  PcapBufSize* = 1024
+  PcapSrcFile* = 2
+  PcapSrcIfLocal* = 3
+  PcapSrcIfRemote* = 4
+  PcapSrcFileString*: cstring = "file://"
+  PcapSrcIfString*: cstring = "rpcap://"
+  PcapOpenFlagPromiscous* = 0x00000001
+  PcapOpenFlagDataTxUdp* = 0x00000002
+  PcapOpenFlagNoCaptureRpcap* = 0x00000004
+  PcapOpenFlagNoCaptureLocal* = 0x00000008
+  PcapOpenFlagMaxResponsiveness* = 0x00000010
+  RpcapRmtAuthNull* = 0
+  RpcapRmtAuthPwd* = 1
+  ModeCapt* = 0
+  ModeStat* = 1
+  ModeMon* = 2
+  PcapSampNoSamp* = 0
+  PcapSamp1EveryN* = 1
+  PcapSampFirstAfterNMs* = 2
+  RpcapHostlistSize* = 1024
 
 type
-    Pcap* = pointer
+  Pcap* = pointer
 
-    PcapDumper* = pointer
+  PcapDumper* = pointer
 
-    SockAddr* = object
-        saFamily*: uint16
-        saData*: array[14, byte]
+  SockAddr* = object
+    saFamily*: uint16
+    saData*: array[14, byte]
 
-    PcapAddr* = object
-        next*: ptr PcapAddr
-        address*: ptr SockAddr
-        netmask*: ptr SockAddr
-        broadaddr*: ptr SockAddr
-        dstaddr*: ptr SockAddr
+  PcapAddr* = object
+    next*: ptr PcapAddr
+    address*: ptr SockAddr
+    netmask*: ptr SockAddr
+    broadaddr*: ptr SockAddr
+    dstaddr*: ptr SockAddr
 
-    PcapIf* = object
-        next*: ptr PcapIf
-        name*: cstring
-        description*: cstring
-        addresses*: ptr PcapAddr
-        flags*: cuint
+  PcapIf* = object
+    next*: ptr PcapIf
+    name*: cstring
+    description*: cstring
+    addresses*: ptr PcapAddr
+    flags*: cuint
 
 when defined(windows):
-    type
-        TimeVal* = object
-            tvSec*: int32
-            tvUsec*: int32
+  type
+    TimeVal* = object
+      tvSec*: int32
+      tvUsec*: int32
 else:
-    type
-        TimeVal* = object
-            tvSec*: int64
-            tvUsec*: int64
+  type
+    TimeVal* = object
+      tvSec*: int64
+      tvUsec*: int64
 
 type
-    PcapPacketHeader* {.packed.} = object
-        ts*: TimeVal
-        capLen*: cuint
-        len*: cuint
+  PcapPacketHeader* {.packed.} = object
+    ts*: TimeVal
+    capLen*: cuint
+    len*: cuint
 
-    PcapFileHeader* = object
-        magic*: cuint
-        versionMajor*: cushort
-        versionMinor*: cushort
-        thisZone*: cint
-        sigFigs*: cuint
-        snapLen*: cuint
-        linkType*: cuint
+  PcapFileHeader* = object
+    magic*: cuint
+    versionMajor*: cushort
+    versionMinor*: cushort
+    thisZone*: cint
+    sigFigs*: cuint
+    snapLen*: cuint
+    linkType*: cuint
 
-    PcapDirection* = enum
-        PcapDInOut = 0
-        PcapDIn
-        PcapDOut
+  PcapDirection* = enum
+    PcapDInOut = 0
+    PcapDIn
+    PcapDOut
 
-    BpfInsn* = object
-        code*: cushort
-        jf*: uint8
-        jt*: uint8
-        k*: cint
+  BpfInsn* = object
+    code*: cushort
+    jf*: uint8
+    jt*: uint8
+    k*: cint
 
-    BpfProgram* = object
-        bfInsns*: ptr BpfInsn
-        bfLen*: cuint
+  BpfProgram* = object
+    bfInsns*: ptr BpfInsn
+    bfLen*: cuint
 
-    PcapRmtAuth* = object
-        authType*: cint
-        username*: cstring
-        password*: cstring
+  PcapRmtAuth* = object
+    authType*: cint
+    username*: cstring
+    password*: cstring
 
-    PcapSamp* = object
-        sampMethod*: cint
-        sampValue*: cint
+  PcapSamp* = object
+    sampMethod*: cint
+    sampValue*: cint
 
-    PcapHandler* = proc(user: ptr char, header: PcapPacketHeader,
+  PcapHandler* = proc(user: ptr char, header: PcapPacketHeader,
             bytes: ptr byte)
 
 when defined(Windows):
-    type PcapStat = object
-        psRecv: cuint
-        psDrop: cuint
-        psIfDrop: cuint
-        psCapt: cuint
-        psSent: cuint
-        psNetDrop: cuint
+  type PcapStat = object
+    psRecv: cuint
+    psDrop: cuint
+    psIfDrop: cuint
+    psCapt: cuint
+    psSent: cuint
+    psNetDrop: cuint
 else:
-    type PcapStat = object
-        psRecv: cuint
-        psDrop: cuint
-        psIfDrop: cuint
+  type PcapStat = object
+    psRecv: cuint
+    psDrop: cuint
+    psIfDrop: cuint
 
 {.push dynlib: libName.}
 
@@ -212,7 +212,7 @@ proc pcapTstampTypeValToDescription*(typeVal: cint): cstring
     {.importc: "pcap_tstamp_type_val_to_description".}
 
 when defined(linux):
-    proc pcapSetProtocolLinux*(handle: Pcap, protocol: cint): cint
+  proc pcapSetProtocolLinux*(handle: Pcap, protocol: cint): cint
         {.importc: "pcap_set_protocol_linux".}
 
 proc pcapOpenLive*(device: cstring, snapLen: cint, promisc: cint, toMs: cint,
@@ -397,68 +397,68 @@ proc pcapLibVersion*(): cstring
     {.importc: "pcap_lib_version".}
 
 when defined(Windows):
-    type
-        PcapSendQueue* = object
-            maxLen*: cuint
-            len*: cuint
-            buffer*: ptr uint8
+  type
+    PcapSendQueue* = object
+      maxLen*: cuint
+      len*: cuint
+      buffer*: ptr uint8
 
-        PAirPcapHandle* = pointer
+    PAirPcapHandle* = pointer
 
-    proc pcapSetBuff*(handle: Pcap, dim: cint): cint
+  proc pcapSetBuff*(handle: Pcap, dim: cint): cint
         {.importc: "pcap_setbuff".}
 
-    proc pcapSetMode*(handle: Pcap, mode: cint): cint
+  proc pcapSetMode*(handle: Pcap, mode: cint): cint
         {.importc: "pcap_setmode".}
 
-    proc pcapSetMinToCopy*(handle: Pcap, size: cint): cint
+  proc pcapSetMinToCopy*(handle: Pcap, size: cint): cint
         {.importc: "pcap_setmintocopy".}
 
-    proc pcapGetEvent*(handle: Pcap): pointer
+  proc pcapGetEvent*(handle: Pcap): pointer
         {.importc: "pcap_getevent".}
 
-    proc pcapOidGetRequest*(handle: Pcap, val: uint32, voidPtr: pointer,
+  proc pcapOidGetRequest*(handle: Pcap, val: uint32, voidPtr: pointer,
             sizePtr: openarray[byte]): cint
         {.importc: "pcap_oid_get_request".}
 
-    proc pcapOidSetRequest*(handle: Pcap, val: uint32, voidPtr: pointer,
+  proc pcapOidSetRequest*(handle: Pcap, val: uint32, voidPtr: pointer,
             sizePtr: openarray[byte]): cint
         {.importc: "pcap_oid_set_request".}
 
-    proc pcapSendQueueAlloc*(memSize: cuint): PcapSendQueue
+  proc pcapSendQueueAlloc*(memSize: cuint): PcapSendQueue
         {.importc: "pcap_sendqueue_alloc".}
 
-    proc pcapSendQueueDestroy*(queue: PcapSendQueue)
+  proc pcapSendQueueDestroy*(queue: PcapSendQueue)
         {.importc: "pcap_sendqueue_destroy".}
 
-    proc pcapSendQueueTransmit*(handle: Pcap, queue: PcapSendQueue,
+  proc pcapSendQueueTransmit*(handle: Pcap, queue: PcapSendQueue,
             sync: cint): cuint
         {.importc: "pcap_sendqueue_transmit".}
 
-    proc pcapStatsEx*(handle: Pcap, pcapStatSize: cint): PcapStat
+  proc pcapStatsEx*(handle: Pcap, pcapStatSize: cint): PcapStat
         {.importc: "pcap_stats_ex".}
 
-    proc pcapSetUserBuffer*(handle: Pcap, size: cint): cint
+  proc pcapSetUserBuffer*(handle: Pcap, size: cint): cint
         {.importc: "pcap_setuserbuffer".}
 
-    proc pcapLiveDump*(handle: Pcap, fileName: cstring, maxSize: cint,
+  proc pcapLiveDump*(handle: Pcap, fileName: cstring, maxSize: cint,
             maxPacks: cint): cint
         {.importc: "pcap_live_dump".}
 
-    proc pcapLiveDumpEnded*(handle: Pcap, sync: cint): cint
+  proc pcapLiveDumpEnded*(handle: Pcap, sync: cint): cint
         {.importc: "pcap_live_dump_ended".}
 
-    proc pcapStartOem*(errorBuf: ptr char, flags: cint): cint
+  proc pcapStartOem*(errorBuf: ptr char, flags: cint): cint
         {.importc: "pcap_start_oem".}
 
-    proc pcapGetAircapHandle*(handle: Pcap): PAirPcapHandle
+  proc pcapGetAircapHandle*(handle: Pcap): PAirPcapHandle
         {.importc: "pcap_get_airpcap".}
 
 when defined(Linux):
-    proc pcapGetSelectableFd*(handle: Pcap): cint
+  proc pcapGetSelectableFd*(handle: Pcap): cint
         {.importc: "pcap_get_selectable_fd".}
 
-    proc pcapGetRequiredSelectTimeout*(handle: Pcap): TimeVal
+  proc pcapGetRequiredSelectTimeout*(handle: Pcap): TimeVal
         {.importc: "pcap_get_required_select_timeout".}
 
 proc pcapOpen*(source: cstring, snapLen: cint, flags: cint, readTimeout: cint,
